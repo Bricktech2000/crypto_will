@@ -12,6 +12,7 @@ import { DARK_BLUE, DARK, BACKGROUND } from "./theme";
 
 import LandingPage from "./pages/landingPage";
 import CreateWill from "./pages/createWill";
+import Debug from "./pages/debug";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/create" element={<CreateWill />} />
+          <Route path="/debug" element={<Debug />} />
         </Routes>
       </Box>
     </Box>
