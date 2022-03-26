@@ -1,49 +1,49 @@
-import './App.css'
+import './App.css';
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 import {
   useWallet,
   useConnectedWallet,
   WalletStatus,
-} from '@terra-money/wallet-provider'
+} from '@terra-money/wallet-provider';
 
-import * as execute from './contract/execute'
-import * as query from './contract/query'
-import { ConnectWallet } from './components/ConnectWallet'
+import * as execute from './contract/execute';
+import * as query from './contract/query';
+import { ConnectWallet } from './components/ConnectWallet';
 
 function App() {
-  const [count, setCount] = useState(null)
-  const [updating, setUpdating] = useState(true)
-  const [resetValue, setResetValue] = useState(0)
+  const [count, setCount] = useState(null);
+  const [updating, setUpdating] = useState(true);
+  const [resetValue, setResetValue] = useState(0);
 
-  const { status } = useWallet()
+  const { status } = useWallet();
 
-  const connectedWallet = useConnectedWallet()
+  const connectedWallet = useConnectedWallet();
 
   useEffect(() => {
     const prefetch = async () => {
       if (connectedWallet) {
-        setCount((await query.getCount(connectedWallet)).count)
+        setCount((await query.getCount(connectedWallet)).count);
       }
-      setUpdating(false)
-    }
-    prefetch()
-  }, [connectedWallet])
+      setUpdating(false);
+    };
+    prefetch();
+  }, [connectedWallet]);
 
   const onClickIncrement = async () => {
-    setUpdating(true)
-    await execute.increment(connectedWallet)
-    setCount((await query.getCount(connectedWallet)).count)
-    setUpdating(false)
-  }
+    setUpdating(true);
+    await execute.increment(connectedWallet);
+    setCount((await query.getCount(connectedWallet)).count);
+    setUpdating(false);
+  };
 
   const onClickReset = async () => {
-    setUpdating(true)
-    console.log(resetValue)
-    await execute.reset(connectedWallet, resetValue)
-    setCount((await query.getCount(connectedWallet)).count)
-    setUpdating(false)
-  }
+    setUpdating(true);
+    console.log(resetValue);
+    await execute.reset(connectedWallet, resetValue);
+    setCount((await query.getCount(connectedWallet)).count);
+    setUpdating(false);
+  };
 
   return (
     <div className="App">
@@ -71,7 +71,7 @@ function App() {
         <ConnectWallet />
       </header>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
