@@ -1,11 +1,12 @@
 use crate::state::Will;
+use cosmwasm_std::Addr;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-//#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-//pub struct InstantiateMsg {
-//    pub owner: Addr,
-//}
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+pub struct InstantiateMsg {
+    // pub owner: Addr,
+}
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
@@ -16,10 +17,10 @@ pub enum ExecuteMsg {
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum QueryMsg {
-    GetWill {},
+    GetWill { addr: Addr },
 }
 
 //#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-//pub struct BenefactorResponse{
-//    pub benefactorList: HashMap<Addr, f32>,
+//pub struct recipientResponse{
+//    pub recipientList: HashMap<Addr, f32>,
 //}

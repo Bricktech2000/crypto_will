@@ -1,80 +1,78 @@
-import './App.css'
-
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 import {
   useWallet,
   useConnectedWallet,
   WalletStatus,
-} from '@terra-money/wallet-provider'
+} from '@terra-money/wallet-provider';
 
-import * as execute from './contract/execute'
-import * as query from './contract/query'
-import { ConnectWallet } from './components/ConnectWallet'
+import * as execute from '../contract/execute';
+import * as query from '../contract/query';
+import { ConnectWallet } from '../components/ConnectWallet';
 
 function Debug() {
-  const [count, setCount] = useState(null)
-  const [updating, setUpdating] = useState(true)
-  const [resetValue, setResetValue] = useState(0)
+  const [count, setCount] = useState(null);
+  const [updating, setUpdating] = useState(true);
+  const [json, setJson] = useState('{}');
 
-  const { status } = useWallet()
+  const { status } = useWallet();
 
-  const connectedWallet = useConnectedWallet()
+  const connectedWallet = useConnectedWallet();
 
-  useEffect(() => {
-    const prefetch = async () => {
-      if (connectedWallet) {
-        setCount((await query.getCount(connectedWallet)).count)
-      }
-      setUpdating(false)
-    }
-    prefetch()
-  }, [connectedWallet])
+  // useEffect(() => {
+  //   const prefetch = async () => {
+  //     if (connectedWallet) {
+  //       setCount((await query.getCount(connectedWallet)).count);
+  //     }
+  //     setUpdating(false);
+  //   };
+  //   prefetch();
+  // }, [connectedWallet]);
 
-  const onClickIncrement = async () => {
-    setUpdating(true)
-    await execute.increment(connectedWallet)
-    setCount((await query.getCount(connectedWallet)).count)
-    setUpdating(false)
-  }
+  const onClickSet = async () => {
+    setUpdating(true);
+    await execute.set_will(connectedWallet, JSON.parse(json));
+    console.log(
+      await query.get_will(connectedWallet, connectedWallet.walletAddress)
+    );
+    setUpdating(false);
+  };
 
-  const onClickReset = async () => {
-    setUpdating(true)
-    console.log(resetValue)
-    await execute.reset(connectedWallet, resetValue)
-    setCount((await query.getCount(connectedWallet)).count)
-    setUpdating(false)
-  }
+  const onClickGet = async () => {
+    throw new Error('not implemented');
 
-  console.log('asdf')
+    setUpdating(true);
+    // await execute.set_wallet(connectedWallet, JSON.parse(json));
+    // console.log((await query.getCount(connectedWallet)).count);
+    setUpdating(false);
+  };
 
   return (
     <div className="App">
-      asdfasdfa
       <header className="App-header">
         <div style={{ display: 'inline' }}>
           COUNT: {count} {updating ? '(updating . . .)' : ''}
-          <button onClick={onClickIncrement} type="button">
-            {' '}
-            +{' '}
-          </button>
         </div>
         {status === WalletStatus.WALLET_CONNECTED && (
           <div style={{ display: 'inline' }}>
             <input
-              type="number"
-              onChange={(e) => setResetValue(+e.target.value)}
-              value={resetValue}
+              type="text"
+              onChange={(e) => setJson(e.target.value)}
+              value={json}
             />
-            <button onClick={onClickReset} type="button">
+            <button onClick={onClickSet} type="button">
               {' '}
-              reset{' '}
+              set{' '}
+            </button>
+            <button onClick={onClickGet} type="button">
+              {' '}
+              get{' '}
             </button>
           </div>
         )}
         <ConnectWallet />
       </header>
     </div>
-  )
+  );
 }
 
 export default Debug;

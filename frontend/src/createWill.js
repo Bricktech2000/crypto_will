@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 
-import { BACKGROUND, BLUE, DARK_BLUE, DARK } from '../theme';
+import { BACKGROUND, BLUE, DARK_BLUE, DARK } from './theme';
 
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 

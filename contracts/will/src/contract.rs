@@ -1,11 +1,15 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
+use cosmwasm_std::Addr;
 use cosmwasm_std::{to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult};
 use cw2::set_contract_version;
+use cw20::{Balance, Cw20CoinVerified, Cw20ExecuteMsg, Cw20ReceiveMsg};
+use cw_storage_plus::{Item, Map};
+use std::collections::HashMap;
 
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
-use crate::state::{Benefactor, Will, State, STATE};
+use crate::state::{Recipient, State, Will, STATE, WILLS};
 
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:will";
@@ -19,56 +23,173 @@ pub fn instantiate(
     msg: InstantiateMsg,
 ) -> Result<Response, ContractError> {
     let state = State {
-        owner: info.sender(),
-        wills: Map::new(deps.storage),
+        owner: info.sender.clone(),
+        // wills: HashMap::new(),
     };
 
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
     STATE.save(deps.storage, &state)?;
 
-    Ok(Response::new()
-        .add_attribute("method", "instantiate")
-        .add_attribute("owner", info.sender)
-        .add_attribute("wallets", msg.benefactors);
-        .add_attribute("benefactors", msg.benefactors.to_string());
+    Ok(Response::new().add_attribute("method", "instantiate"))
+    // .add_attribute("owner", info.sender))
+    // .add_attribute("wills", msg.wills)
+    // .add_attribute("recipient", msg.recipients.to_string()));
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn execute(
     deps: DepsMut,
-    _env: Env,
+    env: Env,
     info: MessageInfo,
     msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
     match msg {
-        ExecuteMsg::SetWill { will: Will } => try_set_will(deps, info, will),
+        ExecuteMsg::SetWill { will } => try_set_will(deps, env, info, will),
     }
 }
 
-pub fn try_set_will(deps: DepsMut, info: MessageInfo, will: Will) -> Result<Response, ContractError> {
-    let mut state = STATE.load(deps.storage)?;
+pub fn try_set_will(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    will: Will,
+) -> Result<Response, ContractError> {
+    // let will = WILLS.may_load(deps.storage, info.sender)?;
 
-    if !state.wills.contains_key(&will.benefactor) {
-        //
-    }
+    // let coin = Cw20CoinVerified {
+    //     address: info.sender,
+    //     amount: cw20_msg.amount,
+    // }
 
-    let sender = info.sender()
-        .ok_or(ContractError::NoSender)?
-        .verify_signature(&will.signature)
-        .map_err(|_| ContractError::InvalidSignature)?;
+    // let funds = &info.funds;
 
-    let block_time = env.block.time.ok_or(ContractError::NoTime)?;
+    //
+    // if !state.wills.contains_key(&will.recipient) {
+    //     //
+    // }
+
+    let block_time = env.block.time.nanos() as u64;
 
     let will = Will {
-        benefactors: Map::new(deps.storage),
+        recipients: Vec::new(),
         timestamp: block_time,
-        assets: 0u128,
+        assets: 0u64,
     };
 
-    STATE.update(deps.storage, |mut state| -> Result<_, ContractError> {
-        state.wills.insert(sender, will);
-        Ok(state)
-    })?;
+    WILLS.save(deps.storage, info.sender, &will)?;
 
     Ok(Response::new().add_attribute("method", "try_set_will"))
+    // .add_attribute("will", will))
 }
+
+#[cfg_attr(not(feature = "library"), entry_point)]
+pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
+    match msg {
+        QueryMsg::GetWill { addr } => to_binary(&try_get_will(deps, env, addr)?),
+    }
+}
+
+pub fn try_get_will(deps: Deps, env: Env, addr: Addr) -> StdResult<Will> {
+    let will = WILLS.may_load(deps.storage, addr).unwrap().unwrap();
+
+    // if !state.wills.contains_key(&will.recipient) {
+    //     return Err(ContractError::InvalidAddress);
+    // }
+
+    // Ok(Will {
+    //     will: wills.asdf(info.sender),
+    // })
+
+    Ok(will)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
+    use cosmwasm_std::{coins, from_binary};
+
+    #[test]
+    fn proper_initialization() {
+        let mut deps = mock_dependencies(&[]);
+
+        let msg = instantiate { count: 17 };
+        let info = mock_info("creator", &coins(1000, "earth"));
+
+        // we can just call .unwrap() to assert this was a success
+        let res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+        assert_eq!(0, res.messages.len());
+
+        // it worked, let's query the state
+        let res = query(deps.as_ref(), mock_env(), QueryMsg::GetCount {}).unwrap();
+        let value: CountResponse = from_binary(&res).unwrap();
+        assert_eq!(17, value.count);
+    }
+
+    #[test]
+    fn increment() {
+        let mut deps = mock_dependencies(&coins(2, "token"));
+
+        let msg = InstantiateMsg {};
+        let info = mock_info("creator", &coins(2, "token"));
+        let _res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+        // beneficiary can release it
+        let info = mock_info("anyone", &coins(2, "token"));
+        let msg = ExecuteMsg::SetWill { Will };
+        let _res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+        // should increase counter by 1
+        let res = query(deps.as_ref(), mock_env(), QueryMsg::GetCount {}).unwrap();
+        let value: CountResponse = from_binary(&res).unwrap();
+        assert_eq!(18, value.count);
+    }
+
+    #[test]
+    fn reset() {
+        let mut deps = mock_dependencies(&coins(2, "token"));
+
+        let msg = InstantiateMsg { count: 17 };
+        let info = mock_info("creator", &coins(2, "token"));
+        let _res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+        // beneficiary can release it
+        let unauth_info = mock_info("anyone", &coins(2, "token"));
+        let msg = ExecuteMsg::Reset { count: 5 };
+        let res = execute(deps.as_mut(), mock_env(), unauth_info, msg);
+        match res {
+            Err(ContractError::Unauthorized {}) => {}
+            _ => panic!("Must return unauthorized error"),
+        }
+
+        // only the original creator can reset the counter
+        let auth_info = mock_info("creator", &coins(2, "token"));
+        let msg = ExecuteMsg::Reset { count: 5 };
+        let _res = execute(deps.as_mut(), mock_env(), auth_info, msg).unwrap();
+
+        // should now be 5
+        let res = query(deps.as_ref(), mock_env(), QueryMsg::GetCount {}).unwrap();
+        let value: CountResponse = from_binary(&res).unwrap();
+        assert_eq!(5, value.count);
+    }
+}
+
+// use std::process;
+//
+// pub fn removeWill(
+//     deps: DepsMut,
+//     env: Env,
+//     info: MessageInfo,
+//     recipient: Addr,
+// ) -> Result<Response, ContractError> {
+//     let mut state = WILLS.load(deps.storage)?;
+
+//     if !state.wills.contains_key(&will.recipient) {
+//         //TODO:
+//         process::exit(1);
+//     }
+//     //RETURN MONEY TO USER
+//     state.remove(&recipient);
+// }
+
+//Balance::from(info.funds)

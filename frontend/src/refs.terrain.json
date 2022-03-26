@@ -1,10 +1,1 @@
-{
-    "testnet": {
-        "counter": {
-            "codeId": "56986",
-            "contractAddresses": {
-                "default": "terra1k00ax962y6x9egskggylvkt5gqptsajjh5w4ej"
-            }
-        }
-    }
-}
+../../refs.terrain.json
