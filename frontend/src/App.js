@@ -1,6 +1,5 @@
-import "./App.css";
-
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import AppBar from "@mui/material/AppBar";
@@ -9,25 +8,31 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 
-import { DARK_BLUE, DARK } from "./theme";
+import { DARK_BLUE, DARK, BACKGROUND } from "./theme";
 
 import LandingPage from "./pages/landingPage";
 import CreateWill from "./pages/createWill";
 
 function App() {
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box sx={{ flexGrow: 1, backgroundColor: BACKGROUND }} minHeight="100vh">
       <AppBar position="static" sx={{ backgroundColor: DARK_BLUE }}>
         <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography
+            variant="h6"
+            component={Link}
+            sx={{ flexGrow: 1, textDecoration: "none" }}
+            to="/"
+            color="inherit"
+          >
             Legacy Protocol
           </Typography>
           <Button color="inherit">Assets</Button>
-          <Button color="inherit">Benefactors</Button>
+          <Button color="inherit">recipients</Button>
           <Button color="inherit">Prove Existense</Button>
         </Toolbar>
       </AppBar>
-      <Box width="100vw" height="calc(100vh - 64px)">
+      <Box>
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/create" element={<CreateWill />} />

@@ -1,58 +1,185 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+
+import { BACKGROUND, BLUE, DARK_BLUE, DARK } from "../theme";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-
-import { BACKGROUND, BLUE, DARK_BLUE, DARK } from "../theme";
-
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import RemoveIcon from "@mui/icons-material/Remove";
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import AddIcon from "@mui/icons-material/Add";
+import Slider from "@mui/material/Slider";
 
 function CreateWill() {
+  const [assets, setAssets] = useState(0);
+  const [recipients, setRecipients] = useState([""]);
+  const [recipientsPercentage, setRecipientsPercentage] = useState([0]);
+
+  const PercentageLeft = (index) => {
+    let sum = 0;
+    for (let i = 0; i < recipientsPercentage.length; i++) {
+      if (i == index) continue;
+      sum += recipientsPercentage[i];
+    }
+    return 100 - sum;
+  };
+
+  const addRecipient = () => {
+    const newArray = [...recipients, ""];
+    setRecipients(newArray);
+    const newArray2 = [...recipientsPercentage, 0];
+    setRecipientsPercentage(newArray2);
+  };
+
+  const removeRecipient = () => {
+    let newArray = [...recipients];
+    newArray.pop();
+    setRecipients(newArray);
+    let newArray2 = [...recipientsPercentage];
+    newArray2.pop();
+    setRecipientsPercentage(newArray2);
+  };
+
+  const setRecipientAddress = (index, address) => {
+    let copy = [...recipients];
+    copy[index] = address;
+    setRecipients(copy);
+  };
+
+  const setRecipientPercentage = (index, percent) => {
+    let copy = [...recipientsPercentage];
+    copy[index] = percent;
+    setRecipientsPercentage(copy);
+  };
+
   return (
-    <Box
-      width="100%"
-      height="100%"
-      display="flex"
-      justifyContent="center"
-      flexDirection="column"
-      sx={{ backgroundColor: BACKGROUND }}
-    >
+    <Box marginX={15} paddingTop={6}>
+      <Typography fontSize="50px" color={BLUE}>
+        Create your will
+      </Typography>
+      <Typography fontSize="20px" marginTop="-10px" color={DARK}>
+        State the assets and recipients addresss for the will
+      </Typography>
       <Box
-        marginX={15}
+        mt={2}
         display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        zIndex={5}
+        justifyContent="flex-start"
+        alignItems="flex-start"
       >
-        <Box maxWidth="800px">
-          <Typography fontSize="65px" color={BLUE}>
-            Generate a will
+        <Box
+          display="flex"
+          justifyContent="flex-start"
+          alignItems="flex-start"
+          flexDirection="column"
+          maxWidth="1200px"
+        >
+          <Typography color={BLUE} fontSize="30px" marginY={2}>
+            Recipients
           </Typography>
-          <Typography fontSize="25px" marginTop="-10px" color={DARK}>
-            A empty will must first be created using your address. Once created,
-            you can add the assets on your will and your benefactors.
-          </Typography>
-          <Box mt={6}>
-            <Button
-              variant="contained"
-              sx={{ backgroundColor: BLUE }}
-              size="large"
-              component={Link}
-              to="/create"
-            >
-              <Box
-                marginRight={1}
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-              >
-                <AccountBalanceWalletIcon size="large" />
+          <TextField
+            label="Assets (Terra UST)"
+            value={assets}
+            onChange={(e) => setAssets(e.target.value)}
+            helperText="0.1% Fee"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Box
+                    marginRight={1}
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <img src="./terra-ust.png" width="25px" height="25px" />
+                  </Box>
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Box overflowY="auto">
+            <Box display="flex" marginY={2} justifyContent="space-between">
+              <Typography color={BLUE} fontSize="30px">
+                Recipients
+              </Typography>
+              <Box>
+                <IconButton onClick={addRecipient}>
+                  <AddIcon />
+                </IconButton>
+                <IconButton onClick={removeRecipient}>
+                  <RemoveIcon />
+                </IconButton>
               </Box>
-              Generate
-            </Button>
+            </Box>
+
+            {recipients.map((_, i) => {
+              return (
+                <Box
+                  display="flex"
+                  justifyContent="center"
+                  marginY={1}
+                  key={i}
+                  alignItems="center"
+                  gap="20px"
+                >
+                  <TextField
+                    sx={{ width: "700px" }}
+                    label={`Recipient ${i + 1}`}
+                    value={recipients[i]}
+                    onChange={(e) => setRecipientAddress(i, e.target.value)}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Box
+                            marginRight={1}
+                            display="flex"
+                            justifyContent="center"
+                            alignItems="center"
+                          >
+                            <AccountBalanceWalletIcon />
+                          </Box>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <Box width="33%">
+                    <Typography>Share</Typography>
+                    <Slider
+                      defaultValue={0}
+                      value={recipientsPercentage[i]}
+                      onChange={(e) =>
+                        setRecipientPercentage(i, e.target.value)
+                      }
+                      size="large"
+                      valueLabelDisplay="on"
+                      max={PercentageLeft(i)}
+                    />
+                  </Box>
+                </Box>
+              );
+            })}
           </Box>
+          <Button
+            variant="contained"
+            sx={{ backgroundColor: BLUE, marginTop: "20px" }}
+            size="large"
+            component={Link}
+            to="/create"
+            disabled={recipientsPercentage.reduce((a, b) => a + b, 0) != 100}
+          >
+            <Box
+              marginRight={1}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <AccountBalanceWalletIcon size="large" />
+            </Box>
+            Generate
+          </Button>
         </Box>
       </Box>
     </Box>
