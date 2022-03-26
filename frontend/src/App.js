@@ -1,76 +1,39 @@
-import './App.css';
+import "./App.css";
 
-import { useEffect, useState } from 'react';
-import {
-  useWallet,
-  useConnectedWallet,
-  WalletStatus,
-} from '@terra-money/wallet-provider';
+import React, { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import * as execute from './contract/execute';
-import * as query from './contract/query';
-import { ConnectWallet } from './components/ConnectWallet';
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+
+import { DARK_BLUE, DARK } from "./theme";
+
+import LandingPage from "./pages/landingPage";
+import CreateWill from "./pages/createWill";
 
 function App() {
-  const [count, setCount] = useState(null);
-  const [updating, setUpdating] = useState(true);
-  const [resetValue, setResetValue] = useState(0);
-
-  const { status } = useWallet();
-
-  const connectedWallet = useConnectedWallet();
-
-  useEffect(() => {
-    const prefetch = async () => {
-      if (connectedWallet) {
-        setCount((await query.getCount(connectedWallet)).count);
-      }
-      setUpdating(false);
-    };
-    prefetch();
-  }, [connectedWallet]);
-
-  const onClickIncrement = async () => {
-    setUpdating(true);
-    await execute.increment(connectedWallet);
-    setCount((await query.getCount(connectedWallet)).count);
-    setUpdating(false);
-  };
-
-  const onClickReset = async () => {
-    setUpdating(true);
-    console.log(resetValue);
-    await execute.reset(connectedWallet, resetValue);
-    setCount((await query.getCount(connectedWallet)).count);
-    setUpdating(false);
-  };
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <div style={{ display: 'inline' }}>
-          COUNT: {count} {updating ? '(updating . . .)' : ''}
-          <button onClick={onClickIncrement} type="button">
-            {' '}
-            +{' '}
-          </button>
-        </div>
-        {status === WalletStatus.WALLET_CONNECTED && (
-          <div style={{ display: 'inline' }}>
-            <input
-              type="number"
-              onChange={(e) => setResetValue(+e.target.value)}
-              value={resetValue}
-            />
-            <button onClick={onClickReset} type="button">
-              {' '}
-              reset{' '}
-            </button>
-          </div>
-        )}
-        <ConnectWallet />
-      </header>
-    </div>
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar position="static" sx={{ backgroundColor: DARK_BLUE }}>
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Legacy Protocol
+          </Typography>
+          <Button color="inherit">Assets</Button>
+          <Button color="inherit">Benefactors</Button>
+          <Button color="inherit">Prove Existense</Button>
+        </Toolbar>
+      </AppBar>
+      <Box width="100vw" height="calc(100vh - 64px)">
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/create" element={<CreateWill />} />
+        </Routes>
+      </Box>
+    </Box>
   );
 }
 
