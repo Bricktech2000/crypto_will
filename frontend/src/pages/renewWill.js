@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { BLUE, DARK } from "../theme";
 
@@ -6,8 +6,23 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import CircularProgress from "@mui/material/CircularProgress";
 
 function RenewWill() {
+  const [loading, setLoading] = useState(true);
+
+  if (loading)
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="80vh"
+      >
+        <CircularProgress size="150px" />
+      </Box>
+    );
+
   return (
     <Box
       marginX={15}

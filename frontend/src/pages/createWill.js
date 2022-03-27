@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PieChart, Pie, Cell } from "recharts";
 
 import { BLUE, DARK } from "../theme";
@@ -13,11 +13,66 @@ import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
 import Slider from "@mui/material/Slider";
+import CircularProgress from "@mui/material/CircularProgress";
+
+import { useConnectedWallet } from "@terra-money/wallet-provider";
+
+import * as execute from "../contract/execute";
+import * as query from "../contract/query";
+import { ConnectWallet } from "../components/ConnectWallet";
 
 function CreateWill() {
   const [assets, setAssets] = useState(0);
   const [recipients, setRecipients] = useState([""]);
   const [recipientsPercentage, setRecipientsPercentage] = useState([100]);
+  const [loading, setLoading] = useState(true);
+
+  const connectedWallet = useConnectedWallet();
+
+  useEffect(() => {
+    const fetch = async () => {
+      if (connectedWallet) {
+        try {
+          const will = await query.get_will(
+            connectedWallet,
+            connectedWallet.walletAddress
+          );
+          console.log(will);
+          setRecipients(will.recipients.map((obj) => obj.address));
+          setRecipientsPercentage(will.recipients.map((obj) => obj.percentage));
+        } catch (err) {
+          console.log("NO WILL CREATED");
+        }
+      }
+      setLoading(false);
+    };
+    fetch();
+  }, [connectedWallet]);
+
+  if (loading)
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="75vh"
+      >
+        <CircularProgress size="150px" />
+      </Box>
+    );
+
+  const onSubmit = async () => {
+    setLoading(true);
+    const tx = await execute.set_recipients(
+      connectedWallet,
+      recipients.map((_, i) => ({
+        address: recipients[i],
+        percentage: recipientsPercentage[i],
+      }))
+    );
+    console.log(tx);
+    setLoading(false);
+  };
 
   const data = recipientsPercentage.map((percent, i) => {
     return {
@@ -187,6 +242,7 @@ function CreateWill() {
                 assets <= 0
               }
               startIcon={<AccountBalanceWalletIcon size="large" />}
+              onClick={onSubmit}
             >
               Generate
             </Button>
