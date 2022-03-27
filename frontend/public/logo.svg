@@ -7,7 +7,7 @@
     </clipPath>
   </defs>
   <g id="Artboard" clip-path="url(#clip_1)">
-    <use xlink:href="#artboard_1" stroke="none" fill="#FFFFFF" />
+    <use xlink:href="#artboard_1" stroke="none" fill="none" />
     <path d="M269.5 19.5L24.5 272.5" id="Line" fill="#808080" fill-rule="evenodd" stroke="#D9D9D9" stroke-width="11" stroke-linecap="square" />
     <path d="M34.4672 235L153 116.467C120.222 84.3116 67.5838 84.5037 35.0437 117.044C2.50364 149.584 2.31145 202.222 34.4672 235Z" id="Ellipse-Difference" fill="#284B63" fill-rule="evenodd" stroke="none" />
     <path d="M256.533 57.7776L138 176.31C170.777 208.466 223.416 208.274 255.956 175.734C288.496 143.194 288.688 90.5552 256.533 57.7776Z" id="Ellipse-Difference-2" fill="#3C6E71" fill-rule="evenodd" stroke="none" />
