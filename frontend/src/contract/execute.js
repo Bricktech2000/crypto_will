@@ -1,5 +1,5 @@
-import { LCDClient, MsgExecuteContract, Fee } from "@terra-money/terra.js";
-import { contractAdress } from "./address";
+import { LCDClient, MsgExecuteContract, Fee } from '@terra-money/terra.js';
+import { contractAdress } from './address';
 
 // ==== utils ====
 

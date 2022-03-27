@@ -1,33 +1,33 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
-import { BLUE, DARK } from "../theme";
+import { BLUE, DARK } from '../theme';
 
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
-import TextField from "@mui/material/TextField";
-import InputAdornment from "@mui/material/InputAdornment";
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
 
-import { useConnectedWallet } from "@terra-money/wallet-provider";
+import { useConnectedWallet } from '@terra-money/wallet-provider';
 
-import * as execute from "../contract/execute";
-import * as query from "../contract/query";
+import * as execute from '../contract/execute';
+import * as query from '../contract/query';
 
 function ClaimWill({ createAlert }) {
-  const [owner, setOwner] = useState("");
+  const [owner, setOwner] = useState('');
   const connectedWallet = useConnectedWallet();
 
   const claimClicked = async () => {
     if (connectedWallet) {
       try {
         console.log(await execute.distribute_assets(connectedWallet, owner));
-        createAlert("Will Claimed", "success");
+        createAlert('Will Claimed', 'success');
       } catch (err) {
-        createAlert("Transaction Failed", "error");
+        createAlert('Transaction Failed', 'error');
       }
     } else {
-      createAlert("Wallet is Disconnected", "error");
+      createAlert('Wallet is Disconnected', 'error');
     }
   };
 
@@ -49,7 +49,7 @@ function ClaimWill({ createAlert }) {
         </Typography>
 
         <TextField
-          sx={{ width: "700px", marginTop: "50px" }}
+          sx={{ width: '700px', marginTop: '50px' }}
           label="Owner address"
           value={owner}
           onChange={(e) => setOwner(e.target.value)}
@@ -71,11 +71,11 @@ function ClaimWill({ createAlert }) {
 
         <Button
           variant="contained"
-          sx={{ backgroundColor: BLUE, marginTop: "20px" }}
+          sx={{ backgroundColor: BLUE, marginTop: '20px' }}
           size="large"
           startIcon={<AccountBalanceWalletIcon size="large" />}
           onClick={claimClicked}
-          disabled={!owner?.startsWith("terra")}
+          disabled={!owner?.startsWith('terra')}
         >
           Claim
         </Button>

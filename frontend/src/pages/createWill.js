@@ -63,35 +63,39 @@ function CreateWill({ createAlert }) {
     );
 
   const onSubmit = async () => {
-    try {
-      setLoading(true);
-      console.log(
-        await execute.set_recipients(
-          connectedWallet,
-          recipients.map((_, i) => ({
-            address: recipients[i],
-            percentage: recipientsPercentage[i],
-          }))
-        )
-      );
+    if (connectedWallet) {
+      try {
+        setLoading(true);
+        console.log(
+          await execute.set_recipients(
+            connectedWallet,
+            recipients.map((_, i) => ({
+              address: recipients[i],
+              percentage: recipientsPercentage[i],
+            }))
+          )
+        );
 
-      const current_assets =
-        (await query.get_will(connectedWallet, connectedWallet.walletAddress))
-          .assets / 1000000;
+        const current_assets =
+          (await query.get_will(connectedWallet, connectedWallet.walletAddress))
+            .assets / 1000000;
 
-      console.log(
-        await execute.set_assets(
-          connectedWallet,
-          assets,
-          assets > current_assets ? assets - current_assets : 0
-        )
-      );
-      createAlert('Will created', 'success');
-    } catch (err) {
-      console.log(err);
-      createAlert('Transaction Failed', 'error');
+        console.log(
+          await execute.set_assets(
+            connectedWallet,
+            assets,
+            assets > current_assets ? assets - current_assets : 0
+          )
+        );
+        createAlert('Will created', 'success');
+      } catch (err) {
+        console.log(err);
+        createAlert('Transaction Failed', 'error');
+      }
+      setLoading(false);
+    } else {
+      createAlert('Wallet is Disconnected', 'error');
     }
-    setLoading(false);
   };
 
   const data = recipientsPercentage.map((percent, i) => {
@@ -258,7 +262,7 @@ function CreateWill({ createAlert }) {
               size="large"
               disabled={
                 recipientsPercentage.reduce((a, b) => a + b, 0) != 100 ||
-                !recipients.every((val) => val.length > 10) ||
+                !recipients.every((val) => val.startsWith('terra')) ||
                 assets <= 0
               }
               startIcon={<AccountBalanceWalletIcon size="large" />}
