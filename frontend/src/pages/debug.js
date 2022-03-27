@@ -46,6 +46,17 @@ function Debug() {
     setUpdating(false);
   };
 
+  const onClickSetAssets = async () => {
+    setUpdating(true);
+    console.log(
+      (await execute.set_assets(connectedWallet, JSON.parse(json))).raw_log
+    );
+    console.log(
+      await query.get_will(connectedWallet, connectedWallet.walletAddress)
+    );
+    setUpdating(false);
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -66,6 +77,10 @@ function Debug() {
             <button onClick={onClickGet} type="button">
               {' '}
               get{' '}
+            </button>
+            <button onClick={onClickSetAssets} type="button">
+              {' '}
+              set_assets{' '}
             </button>
           </div>
         )}

@@ -1,7 +1,10 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
-use cosmwasm_std::Addr;
-use cosmwasm_std::{to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult};
+use cosmwasm_std::Uint128;
+use cosmwasm_std::{
+    from_binary, to_binary, Addr, BankMsg, Binary, Coin, CosmosMsg, Deps, DepsMut, Env,
+    MessageInfo, Response, StdResult, WasmMsg,
+};
 use cw2::set_contract_version;
 use cw20::{Balance, Cw20CoinVerified, Cw20ExecuteMsg, Cw20ReceiveMsg};
 use cw_storage_plus::{Item, Map};
@@ -56,7 +59,7 @@ pub fn execute(
     match msg {
         ExecuteMsg::ResetTimestamp {} => try_reset_timestamp(deps, env, info),
         ExecuteMsg::SetRecipients { recipients } => try_set_recipients(deps, env, info, recipients),
-        ExecuteMsg::AddFunds { delta_funds } => try_add_funds(deps, env, info, delta_funds),
+        ExecuteMsg::SetAssets { assets } => try_set_assets(deps, env, info, assets),
     }
 }
 
@@ -103,7 +106,7 @@ pub fn try_set_recipients(
     let will = Will {
         recipients: recipients,
         timestamp: block_time,
-        assets: 0i64,
+        assets: 0u64,
     };
 
     WILLS.save(deps.storage, info.sender, &will)?;
@@ -111,32 +114,27 @@ pub fn try_set_recipients(
     Ok(Response::new().add_attribute("method", "try_set_recipients"))
 }
 
-
-
-
 pub fn try_remove_will(
     deps: DepsMut,
     env: Env,
     info: MessageInfo,
     recipients: Vec<Recipient>,
 ) -> Result<Response, ContractError> {
-
     let current_will = match WILLS.load(deps.storage, info.sender.clone()) {
         Ok(will) => will,
         Err(_) => return Err(ContractError::NonExistentWill {}),
     };
-    
+
     WILLS.remove(deps.storage, info.sender);
 
     Ok(Response::new().add_attribute("method", "try_set_recipients"))
 }
 
-
-pub fn try_add_funds(
+pub fn try_set_assets(
     deps: DepsMut,
     env: Env,
     info: MessageInfo,
-    delta_funds: i64,
+    assets: u64,
 ) -> Result<Response, ContractError> {
     let current_will = WILLS
         .may_load(deps.storage, info.sender.clone())
@@ -145,15 +143,71 @@ pub fn try_add_funds(
 
     let block_time = env.block.time.nanos() as u64;
 
-    let will = Will {
-        recipients: current_will.recipients,
-        timestamp: block_time,
-        assets: current_will.assets + delta_funds,
-    };
+    let delta_assets = assets as i64 - current_will.assets as i64;
 
-    WILLS.save(deps.storage, info.sender, &will)?;
+    let mut msgs: Vec<CosmosMsg> = Vec::new();
 
-    Ok(Response::new().add_attribute("method", "try_add_funds"))
+    if delta_assets == 0 {
+        return Ok(Response::new().add_attribute("method", "try_set_assets"));
+    } else if delta_assets > 0 {
+        //transfer funds to user
+
+        // let msg = Cw20ExecuteMsg::Transfer {
+        //     // recipient: env.contract.address.clone().into(),
+        //     amount: (delta_assets as u128).into(),
+        //     // owner: info.sender.clone().into(),
+        //     recipient: info.sender.clone().into(),
+        // };
+
+        // let exec = SubMsg::new(WasmMsg::Execute {
+        //     contract_addr: env.contract.address.into(),
+        //     msg: to_binary(&msg)?,
+        //     funds: vec![],
+        // });
+
+        // let from_address = env.contract.address.clone();
+
+        msgs.push(CosmosMsg::Bank(BankMsg::Send {
+            // from_address,
+            to_address: info.sender.clone().into(),
+            // from_address,
+            // to_address: deps.api.human_address(&owner)?,
+            amount: vec![Coin {
+                denom: "uluna".to_string(),
+                amount: (delta_assets as u128).into(),
+            }],
+        }));
+
+        // msgs.push(exec);
+
+        let will = Will {
+            recipients: current_will.recipients,
+            timestamp: block_time,
+            assets: assets,
+        };
+
+        WILLS.save(deps.storage, info.sender, &will)?;
+    }
+    // no change
+    // return Ok(Response::new().add_attribute("method", "try_set_assets"));
+    // } else if delta_assets < 0 {
+    // c: Cw20CoinVerified
+
+    //  {
+    //     recipient: to.into(),
+    //     amount: c.amount,
+    // };
+
+    //asset handling ONLY
+    //transfer delta to them
+    // } else {
+
+    // put delate in
+    // }
+
+    Ok(Response::new()
+        .add_attribute("method", "try_set_assets")
+        .add_message(msgs[0].clone()))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]

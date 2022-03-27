@@ -1,9 +1,9 @@
 {
   "testnet": {
     "will": {
-      "codeId": "57457",
+      "codeId": "57500",
       "contractAddresses": {
-        "default": "terra1lsttgrvauncwf9npdknvf9cl5ak2evw0ae2n86"
+        "default": "terra1nrg2yqv0rcdhlvxxm5mgw6qgpkqsa2g55faq49"
       }
     }
   }

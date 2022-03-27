@@ -11,7 +11,7 @@ pub struct InstantiateMsg {}
 pub enum ExecuteMsg {
     ResetTimestamp {},
     SetRecipients { recipients: Vec<Recipient> },
-    AddFunds { delta_funds: i64 },
+    SetAssets { assets: u64 },
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]

@@ -15,7 +15,7 @@ pub struct State {
 pub struct Will {
     pub recipients: Vec<Recipient>,
     pub timestamp: u64,
-    pub assets: i64,
+    pub assets: u64,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
