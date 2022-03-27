@@ -63,6 +63,11 @@ function CreateWill() {
     setRecipientsPercentage(copy);
   };
 
+  useEffect(() => {
+    var audio = new Audio('SHEESH.mp3')
+    audio.play()
+  });
+
   return (
     <Box
       marginX={15}
