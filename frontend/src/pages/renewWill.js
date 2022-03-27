@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
-import { BLUE, DARK } from "../theme";
+import { BLUE, DARK } from '../theme';
 
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
-import CircularProgress from "@mui/material/CircularProgress";
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import CircularProgress from '@mui/material/CircularProgress';
 
-import { useConnectedWallet } from "@terra-money/wallet-provider";
+import { useConnectedWallet } from '@terra-money/wallet-provider';
 
-import * as execute from "../contract/execute";
-import * as query from "../contract/query";
+import * as execute from '../contract/execute';
+import * as query from '../contract/query';
 
 const TimeBetweenRenew = 1000 * 60 * 60 * 24 * 365;
 
@@ -36,8 +36,6 @@ function RenewWill({ createAlert }) {
       const minutesLeft = Math.floor((unix % (60 * 60)) / 60);
       const secondsLeft = Math.floor(unix % 60);
 
-      console.log(unix);
-
       setCountdown({
         days: daysLeft,
         hours: hoursLeft,
@@ -50,22 +48,23 @@ function RenewWill({ createAlert }) {
     }
   }, [time]);
 
-  useEffect(() => {
-    const fetch = async () => {
-      if (connectedWallet) {
-        try {
-          const will = await query.get_will(
-            connectedWallet,
-            connectedWallet.walletAddress
-          );
-          console.log(will);
-          setTime(will.timestamp);
-        } catch (err) {
-          console.log("Will not created");
-        }
+  const fetch = async () => {
+    if (connectedWallet) {
+      try {
+        const will = await query.get_will(
+          connectedWallet,
+          connectedWallet.walletAddress
+        );
+        console.log(will);
+        setTime(will.timestamp);
+      } catch (err) {
+        console.log('Will not created');
       }
-      setLoading(false);
-    };
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
     fetch();
   }, [connectedWallet]);
 
@@ -73,12 +72,13 @@ function RenewWill({ createAlert }) {
     if (connectedWallet) {
       try {
         await execute.reset_timestamp(connectedWallet);
-        createAlert("Will Renewed", "success");
+        createAlert('Will Renewed', 'success');
       } catch (err) {
-        createAlert("Transaction Failed", "error");
+        createAlert('Transaction Failed', 'error');
       }
+      await fetch();
     } else {
-      createAlert("Wallet is Disconnected", "error");
+      createAlert('Wallet is Disconnected', 'error');
     }
   };
 
@@ -121,7 +121,7 @@ function RenewWill({ createAlert }) {
 
         <Button
           variant="contained"
-          sx={{ backgroundColor: BLUE, marginTop: "20px" }}
+          sx={{ backgroundColor: BLUE, marginTop: '20px' }}
           size="large"
           startIcon={<AccountBalanceWalletIcon size="large" />}
           onClick={renewClicked}

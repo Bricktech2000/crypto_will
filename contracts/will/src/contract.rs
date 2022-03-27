@@ -39,7 +39,7 @@ pub fn instantiate(
         &Will {
             recipients: Vec::new(),
             timestamp: 1648338092814267000,
-            assets: 500,
+            assets: 500000000,
         },
     )?;
 
@@ -92,6 +92,11 @@ pub fn try_set_recipients(
     info: MessageInfo,
     recipients: Vec<Recipient>,
 ) -> Result<Response, ContractError> {
+    let current_will = WILLS
+        .may_load(deps.storage, info.sender.clone())
+        .unwrap()
+        .unwrap();
+
     let block_time = env.block.time.nanos() as u64;
 
     // TODO: address valid
@@ -106,7 +111,7 @@ pub fn try_set_recipients(
     let will = Will {
         recipients: recipients,
         timestamp: block_time,
-        assets: 0u64,
+        assets: current_will.assets,
     };
 
     WILLS.save(deps.storage, info.sender, &will)?;
@@ -148,10 +153,57 @@ pub fn try_set_assets(
     let mut msgs: Vec<CosmosMsg> = Vec::new();
 
     if delta_assets == 0 {
-        return Ok(Response::new().add_attribute("method", "try_set_assets"));
+        Ok(Response::new().add_attribute("method", "try_set_assets"))
     } else if delta_assets > 0 {
         //transfer funds to user
+        // let index = info.funds.iter().enumerate().find_map(|(i, exist)| {
+        //     if exist.denom == "uluna" {
+        //         Some(i)
+        //     } else {
+        //         None
+        //     }
+        // });
 
+        // match index {
+        //     Some(idx) => {
+        //         if info.funds[idx].amount < fee.amount {
+        //             return Err(StdError::generic_err("Incefficiant fee to cover costs"));
+        //         }
+        //         let from_address = env.contract.address.clone();
+        //         messages.push(CosmosMsg::Bank(BankMsg::Send {
+        //             from_address,
+        //             to_address: info.sender.clone(),
+        //             // deps.api.human_address(&owner)?,
+        //             amount: vec![fee],
+        //         }));
+        //     }
+        //     None => {
+        //         return Err(StdError::generic_err(
+        //             "You must pay a fee with the specified token",
+        //         ));
+        //     }
+        // }
+
+        // index.map(|i| {
+        //     let coin = env.message.sent_funds[i].clone();
+        //     msgs.push(BankMsg::Send {
+        //         from_address: info.sender.clone(),
+        //         to_address: info.sender.clone(),
+        //         amount: coin,
+        //     });
+        // });
+
+        // info.coins.iter().for_each(|coin| {
+        //     let msg = BankMsg::Send {
+        //         from_address: info.sender.clone(),
+        //         to_address: info.sender.clone(),
+        //         amount: Coin {
+        //             denom: coin.denom.clone(),
+        //             amount: Uint128::from(delta_assets),
+        //         },
+        //     };
+        //     msgs.push(msg.into());
+        // });
         // let msg = Cw20ExecuteMsg::Transfer {
         //     // recipient: env.contract.address.clone().into(),
         //     amount: (delta_assets as u128).into(),
@@ -164,21 +216,25 @@ pub fn try_set_assets(
         //     msg: to_binary(&msg)?,
         //     funds: vec![],
         // });
+        let will = Will {
+            recipients: current_will.recipients,
+            timestamp: block_time,
+            assets: assets,
+        };
 
+        WILLS.save(deps.storage, info.sender, &will)?;
+
+        Ok(Response::new().add_attribute("method", "try_set_assets"))
+    } else if delta_assets < 0 {
         // let from_address = env.contract.address.clone();
 
         msgs.push(CosmosMsg::Bank(BankMsg::Send {
-            // from_address,
             to_address: info.sender.clone().into(),
-            // from_address,
-            // to_address: deps.api.human_address(&owner)?,
             amount: vec![Coin {
                 denom: "uluna".to_string(),
-                amount: (delta_assets as u128).into(),
+                amount: (-delta_assets as u128).into(),
             }],
         }));
-
-        // msgs.push(exec);
 
         let will = Will {
             recipients: current_will.recipients,
@@ -187,7 +243,14 @@ pub fn try_set_assets(
         };
 
         WILLS.save(deps.storage, info.sender, &will)?;
+
+        Ok(Response::new()
+            .add_attribute("method", "try_set_assets")
+            .add_message(msgs[0].clone()))
+    } else {
+        Ok(Response::new().add_attribute("method", "try_set_assets"))
     }
+
     // no change
     // return Ok(Response::new().add_attribute("method", "try_set_assets"));
     // } else if delta_assets < 0 {
@@ -204,10 +267,6 @@ pub fn try_set_assets(
 
     // put delate in
     // }
-
-    Ok(Response::new()
-        .add_attribute("method", "try_set_assets")
-        .add_message(msgs[0].clone()))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
