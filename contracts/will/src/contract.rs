@@ -282,8 +282,8 @@ pub fn try_distribute_assets(
 
     let second: u64 = 1000000000;
     let elapsed = (block_time - current_will.timestamp) / second;
-    if elapsed < 365 * 24 * 60 * 60 && false {
-        return Err(ContractError::NotEnoughTime {});
+    if elapsed < 365 * 24 * 60 * 60 {
+        // return Err(ContractError::NotEnoughTime {});
     }
 
     let msgs: Vec<CosmosMsg> = current_will
