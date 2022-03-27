@@ -33,16 +33,6 @@ pub fn instantiate(
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
     STATE.save(deps.storage, &state)?;
 
-    WILLS.save(
-        deps.storage,
-        info.sender,
-        &Will {
-            recipients: Vec::new(),
-            timestamp: 1648338092814267000,
-            assets: 500000000,
-        },
-    )?;
-
     Ok(Response::new().add_attribute("method", "instantiate"))
     // .add_attribute("owner", info.sender))
     // .add_attribute("wills", msg.wills)
@@ -289,6 +279,12 @@ pub fn try_distribute_assets(
         .unwrap();
 
     let block_time = env.block.time.nanos() as u64;
+
+    let second: u64 = 1000000000;
+    let elapsed = (block_time - current_will.timestamp) / second;
+    if elapsed < 365 * 24 * 60 * 60 && false {
+        return Err(ContractError::NotEnoughTime {});
+    }
 
     let msgs: Vec<CosmosMsg> = current_will
         .recipients
