@@ -263,7 +263,7 @@ function CreateWill({ createAlert }) {
               disabled={
                 recipientsPercentage.reduce((a, b) => a + b, 0) != 100 ||
                 !recipients.every((val) => val.startsWith('terra')) ||
-                assets <= 0
+                assets < 0
               }
               startIcon={<AccountBalanceWalletIcon size="large" />}
               onClick={onSubmit}
@@ -297,14 +297,23 @@ const Chart = ({ data }) => {
 
     return (
       <text x={x} y={y} fill="white" fontSize="30px" fontFamily="Raleway">
-        {index + 1}
+        {index == 0 ? '' : index}
       </text>
     );
   };
+
+  const dataModified = [
+    {
+      name: 'empty',
+      value: 100 - data.map((d) => d.value).reduce((a, b) => a + b, 0),
+    },
+    ...data,
+  ];
+
   return (
     <PieChart width={400} height={400}>
       <Pie
-        data={data}
+        data={dataModified}
         cx="50%"
         cy="50%"
         labelLine={false}
@@ -314,7 +323,10 @@ const Chart = ({ data }) => {
         dataKey="value"
       >
         {data.map((entry, index) => (
-          <Cell key={`cell-${index}`} />
+          <Cell
+            key={`cell-${index}`}
+            fill={index == 0 ? 'transparent' : BLUE}
+          />
         ))}
       </Pie>
     </PieChart>
