@@ -1,6 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+import sheeeesh from "../sheeeeesh"
+
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
@@ -31,6 +33,7 @@ function LandingPage() {
             sx={{ backgroundColor: BLUE }}
             size="large"
             component={Link}
+            onClick={sheeeesh}
             to="/create"
           >
             Get Started

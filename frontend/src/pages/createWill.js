@@ -3,6 +3,8 @@ import { PieChart, Pie, Cell } from "recharts";
 
 import { BLUE, DARK } from "../theme";
 
+import sheeeesh from "../sheeeeesh"
+
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
@@ -40,6 +42,7 @@ function CreateWill() {
     setRecipients(newArray);
     const newArray2 = [...recipientsPercentage, 0];
     setRecipientsPercentage(newArray2);
+    sheeeesh()
   };
 
   const removeRecipient = () => {
@@ -62,11 +65,6 @@ function CreateWill() {
     copy[index] = percent;
     setRecipientsPercentage(copy);
   };
-
-  useEffect(() => {
-    var audio = new Audio('SHEESH.mp3')
-    audio.play()
-  });
 
   return (
     <Box
