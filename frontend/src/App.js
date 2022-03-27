@@ -1,26 +1,26 @@
-import React, { useState } from "react";
-import { Link, Routes, Route } from "react-router-dom";
+import React, { useState } from 'react';
+import { Link, Routes, Route } from 'react-router-dom';
 
-import { useWallet, WalletStatus } from "@terra-dev/use-wallet";
+import { useWallet, WalletStatus } from '@terra-dev/use-wallet';
 
-import IconButton from "@mui/material/IconButton";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
-import CloseIcon from "@mui/icons-material/Close";
-import Snackbar from "@mui/material/Snackbar";
-import MuiAlert, { AlertProps } from "@mui/material/Alert";
+import IconButton from '@mui/material/IconButton';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import CloseIcon from '@mui/icons-material/Close';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert, { AlertProps } from '@mui/material/Alert';
 
-import { DARK_BLUE, BACKGROUND } from "./theme";
+import { DARK_BLUE, BACKGROUND } from './theme';
 
-import LandingPage from "./pages/landingPage";
-import CreateWill from "./pages/createWill";
-import ClaimWill from "./pages/claimWill";
-import RenewWill from "./pages/renewWill";
-import Debug from "./pages/debug";
+import LandingPage from './pages/landingPage';
+import CreateWill from './pages/createWill';
+import ClaimWill from './pages/claimWill';
+import RenewWill from './pages/renewWill';
+import Debug from './pages/debug';
 
 function App() {
   const { status, connect, disconnect } = useWallet();
@@ -31,7 +31,7 @@ function App() {
   };
 
   const handleClose = (_, reason) => {
-    if (reason === "clickaway") return;
+    if (reason === 'clickaway') return;
     setAlert(null);
   };
 
@@ -42,7 +42,7 @@ function App() {
           <Typography
             variant="h6"
             component={Link}
-            sx={{ flexGrow: 1, textDecoration: "none" }}
+            sx={{ flexGrow: 1, textDecoration: 'none' }}
             to="/"
             color="inherit"
           >
@@ -58,19 +58,19 @@ function App() {
           <IconButton
             onClick={() => {
               if (status === WalletStatus.WALLET_CONNECTED) {
-                disconnect("CHROME_EXTENSION");
-                createAlert("Wallet disconnected", "error");
+                disconnect('CHROME_EXTENSION');
+                createAlert('Wallet disconnected', 'error');
               } else {
-                connect("CHROME_EXTENSION");
-                createAlert("Wallet connected", "success");
+                connect('CHROME_EXTENSION');
+                createAlert('Wallet connected', 'success');
               }
             }}
           >
             {status === WalletStatus.WALLET_CONNECTED ? (
-              <CloseIcon sx={{ color: "white", fontSize: "30px" }} />
+              <CloseIcon sx={{ color: 'white', fontSize: '30px' }} />
             ) : (
               <AccountBalanceWalletIcon
-                sx={{ color: "white", fontSize: "30px" }}
+                sx={{ color: 'white', fontSize: '30px' }}
               />
             )}
           </IconButton>
@@ -81,7 +81,10 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/create" element={<CreateWill />} />
           <Route path="/claim" element={<ClaimWill />} />
-          <Route path="/renew" element={<RenewWill />} />
+          <Route
+            path="/renew"
+            element={<RenewWill createAlert={createAlert} />}
+          />
           <Route path="/debug" element={<Debug />} />
         </Routes>
       </Box>
@@ -93,7 +96,7 @@ function App() {
         <Alert
           onClose={handleClose}
           severity={alert?.type}
-          sx={{ width: "100%" }}
+          sx={{ width: '100%' }}
         >
           {alert?.reason}
         </Alert>
