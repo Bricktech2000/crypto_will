@@ -92,9 +92,8 @@ pub fn try_set_recipients(
     let block_time = env.block.time.nanos() as u64;
 
     // TODO: address valid
-    let sum: u64 = 0;
-    for recipient in recipients {
-        if recipient.ad
+    let mut sum: u64 = 0;
+    for recipient in &recipients {
         sum += recipient.percentage;
     }
     if sum != 100 {
@@ -111,6 +110,27 @@ pub fn try_set_recipients(
 
     Ok(Response::new().add_attribute("method", "try_set_recipients"))
 }
+
+
+
+
+pub fn try_remove_will(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    recipients: Vec<Recipient>,
+) -> Result<Response, ContractError> {
+
+    let current_will = match WILLS.load(deps.storage, info.sender.clone()) {
+        Ok(will) => will,
+        Err(_) => return Err(ContractError::NonExistentWill {}),
+    };
+    
+    WILLS.remove(deps.storage, info.sender);
+
+    Ok(Response::new().add_attribute("method", "try_set_recipients"))
+}
+
 
 pub fn try_add_funds(
     deps: DepsMut,
