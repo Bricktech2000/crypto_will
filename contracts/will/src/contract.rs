@@ -57,6 +57,7 @@ pub fn execute(
     msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
     match msg {
+        ExecuteMsg::DistributeAssets { owner } => try_distribute_assets(deps, env, info, owner),
         ExecuteMsg::ResetTimestamp {} => try_reset_timestamp(deps, env, info),
         ExecuteMsg::SetRecipients { recipients } => try_set_recipients(deps, env, info, recipients),
         ExecuteMsg::SetAssets { assets } => try_set_assets(deps, env, info, assets),
@@ -92,12 +93,16 @@ pub fn try_set_recipients(
     info: MessageInfo,
     recipients: Vec<Recipient>,
 ) -> Result<Response, ContractError> {
-    let current_will = WILLS
-        .may_load(deps.storage, info.sender.clone())
-        .unwrap()
-        .unwrap();
-
     let block_time = env.block.time.nanos() as u64;
+
+    let current_will = match WILLS.load(deps.storage, info.sender.clone()) {
+        Ok(will) => will,
+        Err(_) => Will {
+            recipients: Vec::new(),
+            timestamp: block_time,
+            assets: 0,
+        },
+    };
 
     // TODO: address valid
     let mut sum: u64 = 0;
@@ -123,7 +128,6 @@ pub fn try_remove_will(
     deps: DepsMut,
     env: Env,
     info: MessageInfo,
-    recipients: Vec<Recipient>,
 ) -> Result<Response, ContractError> {
     let current_will = match WILLS.load(deps.storage, info.sender.clone()) {
         Ok(will) => will,
@@ -141,12 +145,16 @@ pub fn try_set_assets(
     info: MessageInfo,
     assets: u64,
 ) -> Result<Response, ContractError> {
-    let current_will = WILLS
-        .may_load(deps.storage, info.sender.clone())
-        .unwrap()
-        .unwrap();
-
     let block_time = env.block.time.nanos() as u64;
+
+    let current_will = match WILLS.load(deps.storage, info.sender.clone()) {
+        Ok(will) => will,
+        Err(_) => Will {
+            recipients: Vec::new(),
+            timestamp: block_time,
+            assets: 0,
+        },
+    };
 
     let delta_assets = assets as i64 - current_will.assets as i64;
 
@@ -246,7 +254,7 @@ pub fn try_set_assets(
 
         Ok(Response::new()
             .add_attribute("method", "try_set_assets")
-            .add_message(msgs[0].clone()))
+            .add_messages(msgs))
     } else {
         Ok(Response::new().add_attribute("method", "try_set_assets"))
     }
@@ -267,6 +275,40 @@ pub fn try_set_assets(
 
     // put delate in
     // }
+}
+
+pub fn try_distribute_assets(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    owner: Addr,
+) -> Result<Response, ContractError> {
+    let current_will = WILLS
+        .may_load(deps.storage, owner.clone())
+        .unwrap()
+        .unwrap();
+
+    let block_time = env.block.time.nanos() as u64;
+
+    let msgs: Vec<CosmosMsg> = current_will
+        .recipients
+        .iter()
+        .map(|recipient| {
+            CosmosMsg::Bank(BankMsg::Send {
+                to_address: recipient.clone().address.into(),
+                amount: vec![Coin {
+                    denom: "uluna".to_string(),
+                    amount: ((current_will.assets * recipient.percentage / 100) as u128).into(),
+                }],
+            })
+        })
+        .collect();
+
+    try_remove_will(deps, env, info)?;
+
+    Ok(Response::new()
+        .add_attribute("method", "try_distribute_assets")
+        .add_messages(msgs))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
