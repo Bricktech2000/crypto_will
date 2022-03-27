@@ -1,13 +1,11 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-import sheeeesh from "../sheeeeesh"
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
 
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-
-import { BACKGROUND, BLUE, DARK } from "../theme";
+import { BACKGROUND, BLUE, DARK } from '../theme';
 
 function LandingPage() {
   return (
@@ -33,7 +31,6 @@ function LandingPage() {
             sx={{ backgroundColor: BLUE }}
             size="large"
             component={Link}
-            onClick={sheeeesh}
             to="/create"
           >
             Get Started

@@ -1,6 +1,4 @@
-import { useWallet, WalletStatus } from '@terra-dev/use-wallet'
-
-import sheeeesh from "../sheeeeesh"
+import { useWallet, WalletStatus } from '@terra-dev/use-wallet';
 
 export const ConnectWallet = () => {
   const {
@@ -10,7 +8,7 @@ export const ConnectWallet = () => {
     connect,
     install,
     disconnect,
-  } = useWallet()
+  } = useWallet();
 
   return (
     <div>
@@ -19,7 +17,9 @@ export const ConnectWallet = () => {
           {availableInstallTypes.map((connectType) => (
             <button
               key={`install-${connectType}`}
-              onClick={() => { sheeeesh(); install(connectType) }}
+              onClick={() => {
+                install(connectType);
+              }}
               type="button"
             >
               Install {connectType}
@@ -28,7 +28,9 @@ export const ConnectWallet = () => {
           {availableConnectTypes.map((connectType) => (
             <button
               key={`connect-${connectType}`}
-              onClick={() => { sheeeesh(); connect(connectType) }}
+              onClick={() => {
+                connect(connectType);
+              }}
               type="button"
             >
               Connect {connectType}
@@ -37,10 +39,15 @@ export const ConnectWallet = () => {
         </>
       )}
       {status === WalletStatus.WALLET_CONNECTED && (
-        <button onClick={() => { sheeeesh(); disconnect() }} type="button">
+        <button
+          onClick={() => {
+            disconnect();
+          }}
+          type="button"
+        >
           Disconnect
         </button>
       )}
     </div>
-  )
-}
+  );
+};
