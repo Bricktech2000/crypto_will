@@ -12,6 +12,7 @@ import Button from '@mui/material/Button';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import CloseIcon from '@mui/icons-material/Close';
 import Snackbar from '@mui/material/Snackbar';
+import Icon from '@mui/material/Icon';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 
 import { DARK_BLUE, BACKGROUND } from './theme';
@@ -39,6 +40,9 @@ function App() {
     <Box sx={{ flexGrow: 1, backgroundColor: BACKGROUND }} minHeight="100vh">
       <AppBar position="static" sx={{ backgroundColor: DARK_BLUE }}>
         <Toolbar>
+          <Icon>
+            <img style={{ height: '100%' }} src="logo.svg" />
+          </Icon>
           <Typography
             variant="h6"
             component={Link}
@@ -46,7 +50,7 @@ function App() {
             to="/"
             color="inherit"
           >
-            Legacy Protocol
+            egacy Protocol
           </Typography>
 
           <Button color="inherit" component={Link} to="/claim">
