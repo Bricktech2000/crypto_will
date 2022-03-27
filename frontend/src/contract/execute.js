@@ -8,7 +8,7 @@ const until = Date.now() + 1000 * 60 * 60;
 const untilInterval = Date.now() + 1000 * 60;
 
 const _exec =
-  (msg, fee = new Fee(200000, { uluna: 10000 })) =>
+  (msg, funds = 0, fee = new Fee(200000, { uluna: 10000 })) =>
   async (wallet) => {
     const lcd = new LCDClient({
       URL: wallet.network.lcd,
@@ -21,7 +21,8 @@ const _exec =
         new MsgExecuteContract(
           wallet.walletAddress,
           contractAdress(wallet),
-          msg
+          msg,
+          funds ? { uluna: funds * Math.pow(10, 6) } : undefined
         ),
       ],
     });
@@ -48,8 +49,8 @@ const _exec =
 export const set_recipients = async (wallet, recipients) =>
   _exec({ set_recipients: { recipients } })(wallet);
 
-export const set_assets = async (wallet, assets) =>
-  _exec({ set_assets: { assets } })(wallet);
+export const set_assets = async (wallet, assets, funds) =>
+  _exec({ set_assets: { assets } }, funds)(wallet);
 
 export const reset_timestamp = async (wallet) =>
   _exec({ reset_timestamp: {} })(wallet);

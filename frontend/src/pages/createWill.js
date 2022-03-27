@@ -63,18 +63,20 @@ function CreateWill({ createAlert }) {
     );
 
   const onSubmit = async () => {
-    setLoading(true);
     try {
-      await execute.set_recipients(
+      setLoading(true);
+      const tx = await execute.set_recipients(
         connectedWallet,
         recipients.map((_, i) => ({
           address: recipients[i],
           percentage: recipientsPercentage[i],
         }))
       );
-      await execute.set_assets(assets);
+      console.log(tx);
+      await execute.set_assets(connectedWallet, assets, assets);
       createAlert("Will created", "success");
     } catch (err) {
+      console.log(err);
       createAlert("Transaction Failed", "error");
     }
     setLoading(false);
