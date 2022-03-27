@@ -83,7 +83,10 @@ function App() {
             path="/create"
             element={<CreateWill createAlert={createAlert} />}
           />
-          <Route path="/claim" element={<ClaimWill />} />
+          <Route
+            path="/claim"
+            element={<ClaimWill createAlert={createAlert} />}
+          />
           <Route
             path="/renew"
             element={<RenewWill createAlert={createAlert} />}
