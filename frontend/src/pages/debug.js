@@ -10,7 +10,6 @@ import * as query from '../contract/query';
 import { ConnectWallet } from '../components/ConnectWallet';
 
 function Debug() {
-  const [count, setCount] = useState(null);
   const [updating, setUpdating] = useState(true);
   const [json, setJson] = useState('[]');
 
@@ -51,7 +50,7 @@ function Debug() {
     <div className="App">
       <header className="App-header">
         <div style={{ display: 'inline' }}>
-          COUNT: {count} {updating ? '(updating . . .)' : ''}
+          {updating ? '(updating . . .)' : ''}
         </div>
         {status === WalletStatus.WALLET_CONNECTED && (
           <div style={{ display: 'inline' }}>

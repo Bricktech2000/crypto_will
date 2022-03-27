@@ -54,9 +54,33 @@ pub fn execute(
     msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
     match msg {
+        ExecuteMsg::ResetTimestamp {} => try_reset_timestamp(deps, env, info),
         ExecuteMsg::SetRecipients { recipients } => try_set_recipients(deps, env, info, recipients),
         ExecuteMsg::AddFunds { delta_funds } => try_add_funds(deps, env, info, delta_funds),
     }
+}
+
+pub fn try_reset_timestamp(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+) -> Result<Response, ContractError> {
+    let block_time = env.block.time.nanos() as u64;
+
+    let current_will = match WILLS.load(deps.storage, info.sender.clone()) {
+        Ok(will) => will,
+        Err(_) => return Err(ContractError::NonExistentWill {}),
+    };
+
+    let will = Will {
+        recipients: current_will.recipients,
+        timestamp: block_time,
+        assets: current_will.assets,
+    };
+
+    WILLS.save(deps.storage, info.sender, &will)?;
+
+    Ok(Response::new().add_attribute("method", "try_reset_timestamp"))
 }
 
 pub fn try_set_recipients(
@@ -66,6 +90,16 @@ pub fn try_set_recipients(
     recipients: Vec<Recipient>,
 ) -> Result<Response, ContractError> {
     let block_time = env.block.time.nanos() as u64;
+
+    // TODO: address valid
+    let sum: u64 = 0;
+    for recipient in recipients {
+        if recipient.ad
+        sum += recipient.percentage;
+    }
+    if sum != 100 {
+        return Err(ContractError::InvalidRecipientPercentage {});
+    }
 
     let will = Will {
         recipients: recipients,

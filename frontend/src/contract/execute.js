@@ -50,3 +50,6 @@ export const set_recipients = async (wallet, recipients) =>
 
 export const add_funds = async (wallet, delta_funds) =>
   _exec({ add_funds: { delta_funds } })(wallet);
+
+export const reset_timestamp = async (wallet) =>
+  _exec({ reset_timestamp: {} })(wallet);
