@@ -1,29 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import { PieChart, Pie, Cell } from 'recharts';
+import React, { useEffect, useState } from "react";
+import { PieChart, Pie, Cell } from "recharts";
 
-import { BLUE, DARK } from '../theme';
+import { BLUE, DARK } from "../theme";
 
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import RemoveIcon from '@mui/icons-material/Remove';
-import TextField from '@mui/material/TextField';
-import InputAdornment from '@mui/material/InputAdornment';
-import IconButton from '@mui/material/IconButton';
-import AddIcon from '@mui/icons-material/Add';
-import Slider from '@mui/material/Slider';
-import CircularProgress from '@mui/material/CircularProgress';
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import RemoveIcon from "@mui/icons-material/Remove";
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import AddIcon from "@mui/icons-material/Add";
+import Slider from "@mui/material/Slider";
+import CircularProgress from "@mui/material/CircularProgress";
 
-import { useConnectedWallet } from '@terra-money/wallet-provider';
+import { useConnectedWallet } from "@terra-money/wallet-provider";
 
-import * as execute from '../contract/execute';
-import * as query from '../contract/query';
-import { ConnectWallet } from '../components/ConnectWallet';
+import * as execute from "../contract/execute";
+import * as query from "../contract/query";
+import { ConnectWallet } from "../components/ConnectWallet";
 
-function CreateWill() {
+function CreateWill({ createAlert }) {
   const [assets, setAssets] = useState(0);
-  const [recipients, setRecipients] = useState(['']);
+  const [recipients, setRecipients] = useState([""]);
   const [recipientsPercentage, setRecipientsPercentage] = useState([100]);
   const [loading, setLoading] = useState(true);
 
@@ -40,8 +40,9 @@ function CreateWill() {
           console.log(will);
           setRecipients(will.recipients.map((obj) => obj.address));
           setRecipientsPercentage(will.recipients.map((obj) => obj.percentage));
+          setAssets(will.assets);
         } catch (err) {
-          console.log('NO WILL CREATED');
+          console.log("NO WILL CREATED");
         }
       }
       setLoading(false);
@@ -63,14 +64,19 @@ function CreateWill() {
 
   const onSubmit = async () => {
     setLoading(true);
-    const tx = await execute.set_recipients(
-      connectedWallet,
-      recipients.map((_, i) => ({
-        address: recipients[i],
-        percentage: recipientsPercentage[i],
-      }))
-    );
-    console.log(tx);
+    try {
+      await execute.set_recipients(
+        connectedWallet,
+        recipients.map((_, i) => ({
+          address: recipients[i],
+          percentage: recipientsPercentage[i],
+        }))
+      );
+      await execute.set_assets(assets);
+      createAlert("Will created", "success");
+    } catch (err) {
+      createAlert("Transaction Failed", "error");
+    }
     setLoading(false);
   };
 
@@ -91,7 +97,7 @@ function CreateWill() {
   };
 
   const addRecipient = () => {
-    const newArray = [...recipients, ''];
+    const newArray = [...recipients, ""];
     setRecipients(newArray);
     const newArray2 = [...recipientsPercentage, 0];
     setRecipientsPercentage(newArray2);
@@ -196,7 +202,7 @@ function CreateWill() {
                     gap="20px"
                   >
                     <TextField
-                      sx={{ width: '700px' }}
+                      sx={{ width: "700px" }}
                       label={`Recipient ${i + 1}`}
                       value={recipients[i]}
                       onChange={(e) => setRecipientAddress(i, e.target.value)}
@@ -234,7 +240,7 @@ function CreateWill() {
             </Box>
             <Button
               variant="contained"
-              sx={{ backgroundColor: BLUE, marginTop: '20px' }}
+              sx={{ backgroundColor: BLUE, marginTop: "20px" }}
               size="large"
               disabled={
                 recipientsPercentage.reduce((a, b) => a + b, 0) != 100 ||

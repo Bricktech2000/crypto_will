@@ -1,1 +1,10 @@
-../../refs.terrain.json
+{
+  "testnet": {
+    "will": {
+      "codeId": "57457",
+      "contractAddresses": {
+        "default": "terra1lsttgrvauncwf9npdknvf9cl5ak2evw0ae2n86"
+      }
+    }
+  }
+}
