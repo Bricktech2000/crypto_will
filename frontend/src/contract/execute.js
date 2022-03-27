@@ -1,5 +1,5 @@
-import { LCDClient, MsgExecuteContract, Fee } from '@terra-money/terra.js';
-import { contractAdress } from './address';
+import { LCDClient, MsgExecuteContract, Fee } from "@terra-money/terra.js";
+import { contractAdress } from "./address";
 
 // ==== utils ====
 
@@ -54,3 +54,6 @@ export const set_assets = async (wallet, assets, funds) =>
 
 export const reset_timestamp = async (wallet) =>
   _exec({ reset_timestamp: {} })(wallet);
+
+export const distribute_assets = async (wallet, owner) =>
+  _exec({ distribute_assets: { owner } })(wallet);

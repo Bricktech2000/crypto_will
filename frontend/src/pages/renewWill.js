@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
-import { BLUE, DARK } from '../theme';
+import { BLUE, DARK } from "../theme";
 
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import CircularProgress from '@mui/material/CircularProgress';
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import CircularProgress from "@mui/material/CircularProgress";
 
-import { useConnectedWallet } from '@terra-money/wallet-provider';
+import { useConnectedWallet } from "@terra-money/wallet-provider";
 
-import * as execute from '../contract/execute';
-import * as query from '../contract/query';
+import * as execute from "../contract/execute";
+import * as query from "../contract/query";
 
 const TimeBetweenRenew = 1000 * 60 * 60 * 24 * 365;
 
@@ -58,27 +58,27 @@ function RenewWill({ createAlert }) {
         console.log(will);
         setTime(will.timestamp);
       } catch (err) {
-        console.log('Will not created');
+        console.log("Will not created");
       }
     }
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetch();
+  useEffect(async () => {
+    await fetch();
   }, [connectedWallet]);
 
   const renewClicked = async () => {
     if (connectedWallet) {
       try {
         await execute.reset_timestamp(connectedWallet);
-        createAlert('Will Renewed', 'success');
+        createAlert("Will Renewed", "success");
       } catch (err) {
-        createAlert('Transaction Failed', 'error');
+        createAlert("Transaction Failed", "error");
       }
       await fetch();
     } else {
-      createAlert('Wallet is Disconnected', 'error');
+      createAlert("Wallet is Disconnected", "error");
     }
   };
 
@@ -121,7 +121,7 @@ function RenewWill({ createAlert }) {
 
         <Button
           variant="contained"
-          sx={{ backgroundColor: BLUE, marginTop: '20px' }}
+          sx={{ backgroundColor: BLUE, marginTop: "20px" }}
           size="large"
           startIcon={<AccountBalanceWalletIcon size="large" />}
           onClick={renewClicked}
