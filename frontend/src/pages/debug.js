@@ -12,25 +12,27 @@ import { ConnectWallet } from '../components/ConnectWallet';
 function Debug() {
   const [count, setCount] = useState(null);
   const [updating, setUpdating] = useState(true);
-  const [json, setJson] = useState('{}');
+  const [json, setJson] = useState('[]');
 
   const { status } = useWallet();
 
   const connectedWallet = useConnectedWallet();
 
-  // useEffect(() => {
-  //   const prefetch = async () => {
-  //     if (connectedWallet) {
-  //       setCount((await query.getCount(connectedWallet)).count);
-  //     }
-  //     setUpdating(false);
-  //   };
-  //   prefetch();
-  // }, [connectedWallet]);
+  useEffect(() => {
+    const prefetch = async () => {
+      if (connectedWallet) {
+        // setCount((await query.getCount(connectedWallet)).count);
+      }
+      setUpdating(false);
+    };
+    prefetch();
+  }, [connectedWallet]);
 
   const onClickSet = async () => {
     setUpdating(true);
-    await execute.set_will(connectedWallet, JSON.parse(json));
+    console.log(
+      await execute.set_recipients(connectedWallet, JSON.parse(json))
+    );
     console.log(
       await query.get_will(connectedWallet, connectedWallet.walletAddress)
     );
@@ -38,11 +40,10 @@ function Debug() {
   };
 
   const onClickGet = async () => {
-    throw new Error('not implemented');
-
     setUpdating(true);
-    // await execute.set_wallet(connectedWallet, JSON.parse(json));
-    // console.log((await query.getCount(connectedWallet)).count);
+    console.log(
+      await query.get_will(connectedWallet, connectedWallet.walletAddress)
+    );
     setUpdating(false);
   };
 

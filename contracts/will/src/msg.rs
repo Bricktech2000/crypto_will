@@ -1,17 +1,16 @@
-use crate::state::Will;
+use crate::state::{Recipient, State, Will, STATE, WILLS};
 use cosmwasm_std::Addr;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-pub struct InstantiateMsg {
-    // pub owner: Addr,
-}
+pub struct InstantiateMsg {}
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum ExecuteMsg {
-    SetWill { will: Will },
+    SetRecipients { recipients: Vec<Recipient> },
+    AddFunds { delta_funds: i64 },
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]

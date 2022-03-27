@@ -30,6 +30,16 @@ pub fn instantiate(
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
     STATE.save(deps.storage, &state)?;
 
+    WILLS.save(
+        deps.storage,
+        info.sender,
+        &Will {
+            recipients: Vec::new(),
+            timestamp: 1648338092814267000,
+            assets: 500,
+        },
+    )?;
+
     Ok(Response::new().add_attribute("method", "instantiate"))
     // .add_attribute("owner", info.sender))
     // .add_attribute("wills", msg.wills)
@@ -44,42 +54,52 @@ pub fn execute(
     msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
     match msg {
-        ExecuteMsg::SetWill { will } => try_set_will(deps, env, info, will),
+        ExecuteMsg::SetRecipients { recipients } => try_set_recipients(deps, env, info, recipients),
+        ExecuteMsg::AddFunds { delta_funds } => try_add_funds(deps, env, info, delta_funds),
     }
 }
 
-pub fn try_set_will(
+pub fn try_set_recipients(
     deps: DepsMut,
     env: Env,
     info: MessageInfo,
-    will: Will,
+    recipients: Vec<Recipient>,
 ) -> Result<Response, ContractError> {
-    // let will = WILLS.may_load(deps.storage, info.sender)?;
-
-    // let coin = Cw20CoinVerified {
-    //     address: info.sender,
-    //     amount: cw20_msg.amount,
-    // }
-
-    // let funds = &info.funds;
-
-    //
-    // if !state.wills.contains_key(&will.recipient) {
-    //     //
-    // }
-
     let block_time = env.block.time.nanos() as u64;
 
     let will = Will {
-        recipients: Vec::new(),
+        recipients: recipients,
         timestamp: block_time,
-        assets: 0u64,
+        assets: 0i64,
     };
 
     WILLS.save(deps.storage, info.sender, &will)?;
 
-    Ok(Response::new().add_attribute("method", "try_set_will"))
-    // .add_attribute("will", will))
+    Ok(Response::new().add_attribute("method", "try_set_recipients"))
+}
+
+pub fn try_add_funds(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    delta_funds: i64,
+) -> Result<Response, ContractError> {
+    let current_will = WILLS
+        .may_load(deps.storage, info.sender.clone())
+        .unwrap()
+        .unwrap();
+
+    let block_time = env.block.time.nanos() as u64;
+
+    let will = Will {
+        recipients: current_will.recipients,
+        timestamp: block_time,
+        assets: current_will.assets + delta_funds,
+    };
+
+    WILLS.save(deps.storage, info.sender, &will)?;
+
+    Ok(Response::new().add_attribute("method", "try_add_funds"))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -90,7 +110,7 @@ pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
 }
 
 pub fn try_get_will(deps: Deps, env: Env, addr: Addr) -> StdResult<Will> {
-    let will = WILLS.may_load(deps.storage, addr).unwrap().unwrap();
+    let current_will = WILLS.may_load(deps.storage, addr).unwrap().unwrap();
 
     // if !state.wills.contains_key(&will.recipient) {
     //     return Err(ContractError::InvalidAddress);
@@ -100,7 +120,7 @@ pub fn try_get_will(deps: Deps, env: Env, addr: Addr) -> StdResult<Will> {
     //     will: wills.asdf(info.sender),
     // })
 
-    Ok(will)
+    Ok(current_will)
 }
 
 #[cfg(test)]

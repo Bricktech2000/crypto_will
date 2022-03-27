@@ -22,7 +22,6 @@ const _exec =
           wallet.walletAddress,
           contractAdress(wallet),
           msg
-          // { uluna: 200000 }
         ),
       ],
     });
@@ -46,11 +45,8 @@ const _exec =
 
 // ==== execute contract ====
 
-// export const set_recipients = async (wallet, will) =>
-//   _exec({ send_recipients: { will } })(wallet);
+export const set_recipients = async (wallet, recipients) =>
+  _exec({ set_recipients: { recipients } })(wallet);
 
-// export const add_funds = async (wallet, will) =>
-//   _exec({ add_funds: { will } })(wallet);
-
-export const set_will = async (wallet, will) =>
-  _exec({ set_will: { will } })(wallet);
+export const add_funds = async (wallet, delta_funds) =>
+  _exec({ add_funds: { delta_funds } })(wallet);
