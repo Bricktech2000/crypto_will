@@ -276,6 +276,47 @@ function CreateWill({ createAlert }) {
       <Box>
         <Chart data={data} />
       </Box>
+      <Box 
+        
+        mt={3} 
+        position="absolute" 
+        bottom="50px" 
+        right="150px"
+      >
+        <Typography color={BLUE} fontSize="17px">
+          
+          SELECT CHARITY AS RECIPIENT
+        </Typography>
+        <Box
+        >
+           <Typography color={DARK} fontSize="15px">
+           CHARITY NAME
+        </Typography>
+        <Typography color={DARK} fontSize="15px">
+        wallet address
+        </Typography>
+        <Typography color={DARK} fontSize="15px">
+           CHARITY NAME
+        </Typography>
+        <Typography color={DARK} fontSize="15px">
+        wallet address
+        </Typography>
+        <Typography color={DARK} fontSize="15px">
+           CHARITY NAME
+        </Typography>
+        <Typography color={DARK} fontSize="15px">
+        wallet address
+        </Typography>
+        </Box>
+        <Button
+          href="https://www.angelprotocol.io/"
+          sx={{ backgroundColor: BLUE, marginTop: '18px' }}
+          variant = "contained"
+          size="large"
+        >
+        CHOOSE A DIFFERENT CHARITY
+        </Button>
+      </Box>
     </Box>
   );
 }
